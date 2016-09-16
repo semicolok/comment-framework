@@ -1,0 +1,91 @@
+jar {
+    baseName = 'comment-domain'
+    version = '0.0.1-SNAPSHOT'
+}
+
+sourceSets {
+    generated {
+        java {
+            srcDirs = ['src/generated/java-jpa']
+        }
+    }
+    main {
+        java.srcDirs = ['src/main/java']
+        resources.srcDir('src/main/resources')
+    }
+    test {
+        java.srcDir('src/test/java')
+        java.srcDir('src/integrationtest/java')
+        resources.srcDir('src/test/resources')
+        resources.srcDir('src/integrationtest/resources')
+    }
+}
+
+configurations {
+    querydslapt
+}
+
+
+dependencies {
+    compile("org.springframework.data:spring-data-jpa:1.10.2.RELEASE")
+    compile("org.hibernate:hibernate-envers:5.2.2.Final")
+    compile("org.hibernate:hibernate-validator:5.2.4.Final")
+    compile("javax.el:javax.el-api:3.0.1-b04")
+
+    compile("org.apache.commons:commons-dbcp2:2.1.1")
+    compile("org.apache.commons:commons-lang3:3.4")
+
+    compile("org.slf4j:slf4j-api:1.7.21")
+    compile("ch.qos.logback:logback-classic:1.1.7")
+
+    compile("javax.inject:javax.inject:1")
+
+    compile("com.fasterxml.jackson.core:jackson-databind:2.8.2")
+    compile("org.codehaus.groovy:groovy-all:2.4.7")
+
+    compile("org.springframework:spring-oxm:${springVersion}")
+    compile("com.thoughtworks.xstream:xstream:1.4.9")
+
+    compile("com.mysema.querydsl:querydsl-jpa:3.7.4")
+
+    compile("org.projectlombok:lombok:1.16.10")
+
+    compile("com.google.guava:guava:19.0")
+
+    querydslapt("com.mysema.querydsl:querydsl-apt:3.7.4")
+
+    runtime("mysql:mysql-connector-java:6.0.3")
+}
+
+
+task generateQueryDSL(type: JavaCompile, group: 'build', description: 'Generates the QueryDSL query types') {
+    source = sourceSets.main.java
+    classpath = configurations.compile + configurations.querydslapt
+    options.compilerArgs = [
+            "-proc:only",
+            "-processor", "com.mysema.query.apt.jpa.JPAAnnotationProcessor"
+    ]
+    destinationDir = sourceSets.generated.java.srcDirs.iterator().next()
+}
+
+
+compileJava {
+    dependsOn generateQueryDSL
+    source generateQueryDSL.destinationDir
+}
+
+compileGeneratedJava {
+    dependsOn generateQueryDSL
+    options.warnings = false
+    classpath += sourceSets.main.runtimeClasspath
+}
+
+clean {
+    delete sourceSets.generated.java.srcDirs
+}
+
+idea {
+    module {
+        sourceDirs += file('src/generated/java-jpa')
+    }
+}

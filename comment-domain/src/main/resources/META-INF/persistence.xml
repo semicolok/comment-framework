@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <persistence-unit name="chatLog" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>com.common.comment.domain.Author</class>
+        <class>com.common.comment.domain.Comment</class>
+        <class>com.common.comment.domain.Content</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
+            <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+            <property name="hibernate.use_sql_comments" value="false"/>
+            <!--<property name="hibernate.hbm2ddl.auto" value="validate"/>-->
+
+            <property name="jadira.usertype.autoRegisterUserTypes" value="true"/>
+            <property name="jadira.usertype.databaseZone" value="jvm"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

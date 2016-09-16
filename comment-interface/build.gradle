@@ -1,0 +1,30 @@
+apply plugin: 'war'
+
+war {
+    baseName = 'comment-interface'
+}
+
+sourceSets {
+    main {
+        java.srcDir 'src/main/java'
+        resources.srcDir 'src/main/resources'
+    }
+    test {
+        java.srcDir 'src/test/java'
+    }
+}
+
+dependencies {
+    compile project(':comment-domain')
+
+    compile("org.springframework:spring-context:${springVersion}")
+    compile("org.springframework:spring-web:${springVersion}")
+    compile("org.springframework:spring-webmvc:${springVersion}")
+
+    compile("org.springframework:spring-aop:${springVersion}")
+    compile("org.aspectj:aspectjrt:${aspectjVersion}")
+    compile("org.aspectj:aspectjweaver:${aspectjVersion}")
+
+    providedCompile("javax.servlet:javax.servlet-api:3.1.0")
+
+}

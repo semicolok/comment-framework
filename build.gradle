@@ -1,0 +1,40 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:0.5.6.RELEASE"
+    }
+}
+
+ext {
+    springVersion = "4.3.2.RELEASE"
+    aspectjVersion = "1.8.9"
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: 'eclipse-wtp'
+    apply plugin: 'idea'
+
+    version = '0.0.1'
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile "junit:junit:4.12"
+        testCompile "org.springframework:spring-test:${springVersion}"
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.13"
+}

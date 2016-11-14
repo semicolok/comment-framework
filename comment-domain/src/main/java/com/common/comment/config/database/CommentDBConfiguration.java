@@ -1,45 +1,79 @@
 package com.common.comment.config.database;
 
+import com.common.comment.domain.CommentDomains;
+import com.common.comment.domain.holder.CommentServiceType;
+import com.common.comment.domain.holder.ContextHolder;
 import com.google.common.collect.Maps;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@EnableJpaRepositories(basePackageClasses = { CommentDomains.class },
+		entityManagerFactoryRef = "commentEntityManagerFactory", transactionManagerRef = "commentTransactionManager")
 public class CommentDBConfiguration {
 
 	@Autowired
 	private Environment environment;
 
 	@Bean
+	public LocalContainerEntityManagerFactoryBean commentEntityManagerFactory() {
+		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+		factoryBean.setDataSource(routingDataSource());
+		factoryBean.setPersistenceUnitName("commonComment");
+		factoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
+
+		return entityManagerFactoryBean;
+	}
+
+	@Bean
+	public PlatformTransactionManager commentTransactionManager(EntityManagerFactory entityManagerFactory) {
+		return new JpaTransactionManager(entityManagerFactory);
+	}
+
+	@Bean
 	public DataSource routingDataSource() {
 		AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
 			@Override
 			protected Object determineCurrentLookupKey() {
-//				return databaseRoutingVariableScope().getCurrentValue();
-				return null;
+				return ContextHolder.getCommentServiceType();
 			}
 		};
+
 		routingDataSource.setDefaultTargetDataSource(dataSource());
+
 		Map<Object, Object> dataSources = Maps.newHashMap();
-		dataSources.put(DatabaseRouting.DATABASE_PLAIN, dataSource());
-//		dataSources.put(DatabaseRouting.DATABASE_COMMENTS_SHARD, commentsDataSource());
-//		dataSources.put(DatabaseRouting.DATABASE_USER_SHARD, userDataSource());
-//		dataSources.put(DatabaseRouting.DATABASE_APP_SHARD, appDataSource());
+		dataSources.put(CommentServiceType.PLAIN_BOARD, dataSource());
+		dataSources.put(CommentServiceType.CHAT_BOARD, chatDataSource());
+
 		routingDataSource.setTargetDataSources(dataSources);
+
 		return routingDataSource;
 	}
 
 	private DataSource dataSource() {
 		BasicDataSource basicDataSource = buildDataSource();
 		basicDataSource.setUrl(getProperty("database.comment.url", String.class));
+
+		return basicDataSource;
+	}
+
+	private DataSource chatDataSource() {
+		BasicDataSource basicDataSource = buildDataSource();
+		basicDataSource.setUrl(getProperty("database.chat.url", String.class));
 
 		return basicDataSource;
 	}
@@ -55,6 +89,7 @@ public class CommentDBConfiguration {
 		basicDataSource.setMinIdle(getProperty("database.minIdle", Integer.class));
 		basicDataSource.setTimeBetweenEvictionRunsMillis(getProperty("database.timeBetweenEvictionRunsMillis", Long.class));
 		basicDataSource.setMinEvictableIdleTimeMillis(getProperty("database.minEvictableIdleTimeMillis", Long.class));
+
 		return basicDataSource;
 	}
 

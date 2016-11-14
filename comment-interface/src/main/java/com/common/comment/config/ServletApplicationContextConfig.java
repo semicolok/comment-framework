@@ -78,7 +78,7 @@ public class ServletApplicationContextConfig extends WebMvcConfigurationSupport 
 	}
 
 	private MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter() {
-		final MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+		MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 		List<MediaType> mediaTypes = Lists.newArrayList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
 		mappingJackson2HttpMessageConverter.setSupportedMediaTypes(mediaTypes);
 
@@ -90,6 +90,7 @@ public class ServletApplicationContextConfig extends WebMvcConfigurationSupport 
 		XStreamMarshaller xstreamMarshaller = new XStreamMarshaller();
 		xmlConverter.setMarshaller(xstreamMarshaller);
 		xmlConverter.setUnmarshaller(xstreamMarshaller);
+
 		return xmlConverter;
 	}
 
